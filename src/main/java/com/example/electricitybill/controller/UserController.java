@@ -6,6 +6,7 @@ import com.example.electricitybill.model.User;
 import com.example.electricitybill.repository.BillInfoRepository;
 import com.example.electricitybill.repository.BlacklistRepository;
 import com.example.electricitybill.repository.UserRepository;
+import com.example.electricitybill.service.UserService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -39,6 +40,9 @@ public class UserController {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private BlacklistRepository blacklistRepository;
+
+    @Autowired
+    private UserService userService;
 
     private String generateToken(String phoneNumber, String email, String password, String role, String type) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -155,21 +159,15 @@ public class UserController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        User userToUpdate = existingUser.get();
-
-        if (updatedUser.getEmail() != null && updatedUser.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            userToUpdate.setEmail(updatedUser.getEmail());
-        } else {
+        if (updatedUser.getEmail() == null || !updatedUser.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
             return new ResponseEntity<>("Invalid email format", HttpStatus.BAD_REQUEST);
         }
 
-        if (updatedUser.getPassword() != null && updatedUser.getPassword().length() >= 8) {
-            userToUpdate.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        } else {
+        if (updatedUser.getPassword() == null || updatedUser.getPassword().length() < 8) {
             return new ResponseEntity<>("Invalid password. It must be at least 8 characters long.", HttpStatus.BAD_REQUEST);
         }
 
-        userRepository.save(userToUpdate);
+        User userToUpdate = userService.updateUserUsingQueryDSL(phoneNumber, updatedUser);
         return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
     }
 
@@ -187,11 +185,11 @@ public class UserController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        Optional<User> existingUser = userRepository.findById(id);
-        if (!existingUser.isPresent()) {
+        boolean isDeleted = userService.deleteUserUsingQueryDSL(id);
+        if (!isDeleted) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
-        userRepository.deleteById(id);
+
         return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
     }
 
@@ -216,11 +214,11 @@ public class UserController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);
-        if (!existingUser.isPresent()) {
+        User existingUser = userService.findUserByPhoneNumberUsingQueryDSL(phoneNumber);
+        if (existingUser == null) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(existingUser.get(), HttpStatus.OK);
+        return new ResponseEntity<>(existingUser, HttpStatus.OK);
     }
 
     @PostMapping("/login")
@@ -254,7 +252,7 @@ public class UserController {
             return new ResponseEntity<>("not admin ", HttpStatus.FORBIDDEN);
         }
 
-        List<User> users = userRepository.findAll();
+        List<User> users = userService.getAllUsersUsingQueryDSL();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
