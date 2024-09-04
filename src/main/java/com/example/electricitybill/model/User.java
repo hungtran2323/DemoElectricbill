@@ -16,6 +16,8 @@ import lombok.Setter;
 public class User {
     @Id
     private int id;
+
+    @Column(length = 20)
     private String phoneNumber;
     private String email;
     private String password;

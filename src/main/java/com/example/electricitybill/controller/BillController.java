@@ -121,15 +121,10 @@ public class BillController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        List<BillInfo> existingBills = billInfoService.getBillInfoByPhoneNumberAndMonth(phoneNumber, entryDate);
-        if (existingBills.isEmpty()) {
+        BillInfo billToUpdate = billInfoService.updateBillInfoUsingQueryDSL(phoneNumber, entryDate, updatedBillInfo);
+        if (billToUpdate == null) {
             return new ResponseEntity<>("No bill found with the provided phone number and entry date", HttpStatus.NOT_FOUND);
         }
-
-        BillInfo billToUpdate = existingBills.get(0);
-
-        billToUpdate.setEntryDate(updatedBillInfo.getEntryDate());
-        billToUpdate.setElectricityConsumption(updatedBillInfo.getElectricityConsumption());
 
         double totalBill = calculateTotalBill(billToUpdate.getElectricityConsumption());
         billToUpdate.setTotalBill(totalBill);
@@ -152,19 +147,17 @@ public class BillController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        List<BillInfo> existingBills = billInfoService.getBillInfoByPhoneNumberAndMonth(phoneNumber, entryDate);
-        if (existingBills.isEmpty()) {
+        boolean isDeleted = billInfoService.deleteBillInfoUsingQueryDSL(phoneNumber, entryDate);
+        if (!isDeleted) {
             return new ResponseEntity<>("No bill found with the provided phone number and entry date", HttpStatus.NOT_FOUND);
         }
 
-        BillInfo billToDelete = existingBills.get(0);
-        billInfoService.deleteBillInfo(billToDelete);
         return new ResponseEntity<>("Bill deleted successfully", HttpStatus.OK);
     }
 
     @GetMapping("/find/{phoneNumber}")
     public ResponseEntity<?> getBillsByPhoneNumber(@PathVariable String phoneNumber) {
-        List<BillInfo> bills = billInfoService.getBillInfoByPhoneNumber(phoneNumber);
+        List<BillInfo> bills = billInfoService.getBillInfoByPhoneNumberUsingQueryDSL(phoneNumber);
         if (bills.isEmpty()) {
             return new ResponseEntity<>("No bills found with the provided phone number", HttpStatus.NOT_FOUND);
         }
@@ -173,7 +166,7 @@ public class BillController {
 
     @GetMapping("/find/{phoneNumber}/{entryDate}")
     public ResponseEntity<?> getBillByPhoneNumberAndMonth(@PathVariable String phoneNumber, @PathVariable @DateTimeFormat(pattern = "yyyy-MM") Date entryDate) {
-        List<BillInfo> bills = billInfoService.getBillInfoByPhoneNumberAndMonth(phoneNumber, entryDate);
+        List<BillInfo> bills = billInfoService.getBillInfoByPhoneNumberAndMonthUsingQueryDSL(phoneNumber, entryDate);
         if (bills.isEmpty()) {
             return new ResponseEntity<>("No bills found with the provided phone number and entry date", HttpStatus.NOT_FOUND);
         }
@@ -193,7 +186,7 @@ public class BillController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        List<BillInfo> bills = billInfoService.getAllBillInfo();
+        List<BillInfo> bills = billInfoService.getAllBillInfoUsingQueryDSL();
         if (bills.isEmpty()) {
             return new ResponseEntity<>("No bills found", HttpStatus.NOT_FOUND);
         }

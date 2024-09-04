@@ -35,6 +35,7 @@ public class ElectricityRateController {
         return new ResponseEntity<>(newRate, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/update")
     public ResponseEntity<?> updateElectricityRate(@RequestHeader("Authorization") String token, @RequestBody ElectricityRate electricityRate) {
         Claims claims = Jwts.parser()
@@ -48,7 +49,7 @@ public class ElectricityRateController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.FORBIDDEN);
         }
 
-        ElectricityRate updatedRate = electricityRateService.updateElectricityRate(electricityRate);
+        ElectricityRate updatedRate = electricityRateService.updateElectricityRateUsingQueryDSL(electricityRate);
         return new ResponseEntity<>(updatedRate, HttpStatus.OK);
     }
 }
