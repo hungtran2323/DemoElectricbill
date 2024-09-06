@@ -1,59 +1,50 @@
-import com.querydsl.jpa.impl.JPAQueryFactory;
+package com.example.electricitybill.service;
+
+import com.example.electricitybill.model.User;
+import com.example.electricitybill.repository.User.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
-
 
 @Service
 public class UserService {
 
     @Autowired
-    private JPAQueryFactory queryFactory;
+    private UserRepository userRepository;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Transactional
-    public User updateUserUsingQueryDSL(String phoneNumber, User updatedUser) {
-        QUser qUser = QUser.user;
-
-        queryFactory.update(qUser)
-                .where(qUser.phoneNumber.eq(phoneNumber))
-                .set(qUser.email, updatedUser.getEmail())
-                .set(qUser.password, passwordEncoder.encode(updatedUser.getPassword()))
-                .execute();
-
-        return queryFactory.selectFrom(qUser)
-                .where(qUser.phoneNumber.eq(phoneNumber))
-                .fetchOne();
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     @Transactional
-    public boolean deleteUserUsingQueryDSL(int id) {
-        QUser qUser = QUser.user;
-
-        long deletedCount = queryFactory.delete(qUser)
-                .where(qUser.id.eq(id))
-                .execute();
-
-        return deletedCount > 0;
+    public User updateUserUsingQueryDSL(String username, User updatedUser) {
+        return userRepository.updateUserUsingQueryDSL(username, updatedUser);
     }
+
+    @Transactional
+    public boolean deleteUserUsingQueryDSL(int username) {
+        return userRepository.deleteUserUsingQueryDSL(username);
+    }
+
+    public List<User> getUserByUsernameUsingQueryDSL(String username) {
+        return userRepository.getUserByUsernameUsingQueryDSL(username);
+    }
+
+    public List<User> getUserByUsernameAndDateUsingQueryDSL(String username, Date registrationDate) {
+        return userRepository.getUserByUsernameAndDateUsingQueryDSL(username, registrationDate);
+    }
+
     public User findUserByPhoneNumberUsingQueryDSL(String phoneNumber) {
-        QUser qUser = QUser.user;
-
-        return queryFactory.selectFrom(qUser)
-                .where(qUser.phoneNumber.eq(phoneNumber))
-                .fetchOne();
+        return userRepository.findUserByPhoneNumberUsingQueryDSL(phoneNumber);
     }
 
-    public List<BillInfo> getAllBillInfoUsingQueryDSL() {
-        QBillInfo qBillInfo = QBillInfo.billInfo;
 
-        return queryFactory.selectFrom(qBillInfo)
-                .fetch();
+
+    public List<User> getAllUsersUsingQueryDSL() {
+        return userRepository.getAllUsersUsingQueryDSL();
     }
 
 
