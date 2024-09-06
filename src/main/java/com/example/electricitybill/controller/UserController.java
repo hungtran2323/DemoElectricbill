@@ -1,11 +1,10 @@
 package com.example.electricitybill.controller;
 
-import com.example.electricitybill.model.BillInfo;
 import com.example.electricitybill.model.BlacklistedToken;
 import com.example.electricitybill.model.User;
-import com.example.electricitybill.repository.BillInfoRepository;
+import com.example.electricitybill.repository.BillInfo.BillInfoRepository;
 import com.example.electricitybill.repository.BlacklistRepository;
-import com.example.electricitybill.repository.UserRepository;
+import com.example.electricitybill.repository.User.UserRepository;
 import com.example.electricitybill.service.UserService;
 
 import io.jsonwebtoken.Claims;

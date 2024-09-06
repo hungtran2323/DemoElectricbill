@@ -1,10 +1,10 @@
 package com.example.electricitybill.controller;
 
 import com.example.electricitybill.model.*;
-import com.example.electricitybill.repository.BusinessElectricityRateRepository;
-import com.example.electricitybill.repository.ElectricityRateRepository;
-import com.example.electricitybill.repository.ManufactureElectricityRateRepository;
-import com.example.electricitybill.repository.UserRepository;
+import com.example.electricitybill.repository.*;
+import com.example.electricitybill.repository.BillInfo.BillInfoRepository;
+import com.example.electricitybill.repository.ElectricRate.ElectricityRateRepository;
+import com.example.electricitybill.repository.User.UserRepository;
 import com.example.electricitybill.service.BillInfoService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -25,6 +25,7 @@ public class BillController {
 
     private final UserRepository userRepository;
     private final BillInfoService billInfoService;
+    private final BillInfoRepository billInfoRepository;
     private final ElectricityRateRepository electricityRateRepository;
     private final String signingKey = "g3+xiQuEw1YWXRe/AwIBGCxYNbrA+VpiWM0HQdk/VJRTYPKzaUJsGIcOKZlWgcaK\n";
     private final BusinessElectricityRateRepository businessElectricityRateRepository;
@@ -85,19 +86,23 @@ public class BillController {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        List<BillInfo> existingBills = billInfoService.getBillInfoByPhoneNumberAndMonth(billInfo.getPhoneNumber(), billInfo.getEntryDate());
+        List<BillInfo> existingBills = billInfoService.getBillInfoByPhoneNumberAndMonthUsingQueryDSL(billInfo.getPhoneNumber(), billInfo.getEntryDate());
         if (!existingBills.isEmpty()) {
             return new ResponseEntity<>("A bill with the same phone number and month already exists", HttpStatus.CONFLICT);
         }
 
         User user = userOptional.get();
         double totalBill;
-        if ("business".equals(user.getType())) {
-            totalBill = calculateBusinessTotalBill(billInfo.getElectricityConsumption());
-        } else if ("manufacture".equals(user.getType())) {
-            totalBill = calculateManufactureTotalBill(billInfo.getElectricityConsumption());
-        } else {
-            totalBill = calculateTotalBill(billInfo.getElectricityConsumption());
+        switch (user.getType()) {
+            case "business":
+                totalBill = calculateBusinessTotalBill(billInfo.getElectricityConsumption());
+                break;
+            case "manufacture":
+                totalBill = calculateManufactureTotalBill(billInfo.getElectricityConsumption());
+                break;
+            default:
+                totalBill = calculateTotalBill(billInfo.getElectricityConsumption());
+                break;
         }
 
         billInfo.setTotalBill(totalBill);

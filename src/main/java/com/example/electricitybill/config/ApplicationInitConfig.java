@@ -1,8 +1,7 @@
 package com.example.electricitybill.config;
 
 import com.example.electricitybill.model.User;
-import com.example.electricitybill.repository.UserRepository;
-import org.springframework.boot.ApplicationArguments;
+import com.example.electricitybill.repository.User.UserRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
