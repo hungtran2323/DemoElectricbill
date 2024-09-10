@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BillInfoRepository extends JpaRepository<BillInfo, Integer>, BillInfoRepositoryCustom {
     List<BillInfo> findByPhoneNumber(String phoneNumber);
+    BillInfo saveBillInfo(BillInfo billToUpdate);
 }
