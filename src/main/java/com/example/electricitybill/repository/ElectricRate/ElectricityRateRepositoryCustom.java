@@ -11,6 +11,5 @@ public interface ElectricityRateRepositoryCustom {
     List<ElectricityRate> getElectricityRateByTierUsingQueryDSL(Integer tier);
     List<ElectricityRate> getElectricityRateByDateUsingQueryDSL(Date effectiveDate);
     List<ElectricityRate> getAllElectricityRatesUsingQueryDSL();
-
     List<ElectricityRate> getAllElectricityRateUsingQueryDSL();
 }

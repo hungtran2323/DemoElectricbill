@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface UserRepositoryCustom {
     User updateUserUsingQueryDSL(String username, User updatedUser);
-    boolean deleteUserUsingQueryDSL(String username);
+    boolean deleteUserUsingQueryDSL(int username);
     List<User> getUserByUsernameUsingQueryDSL(String username);
     List<User> getUserByUsernameAndDateUsingQueryDSL(String username, Date registrationDate);
 
-    User findUserByPhoneNumberUsingQueryDSL(String phoneNumber);
+    User findUserByPhoneNumberUsingQueryDSL(int phoneNumber);
 
     List<User> getAllUsersUsingQueryDSL();
 }

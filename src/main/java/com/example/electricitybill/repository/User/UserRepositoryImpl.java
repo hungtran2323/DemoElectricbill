@@ -15,11 +15,11 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private JPAQueryFactory queryFactory;
 
     @Override
-    public User updateUserUsingQueryDSL(String username, User updatedUser) {
+    public User updateUserUsingQueryDSL(String email, User updatedUser) {
         QUser qUser = QUser.user;
 
         List<User> existingUsers = queryFactory.selectFrom(qUser)
-                .where(qUser.username.eq(username))
+                .where(qUser.email.eq(email))
                 .fetch();
 
         if (existingUsers.isEmpty()) {
@@ -30,9 +30,8 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         queryFactory.update(qUser)
                 .where(qUser.id.eq(userToUpdate.getId()))
-                .set(qUser.username, updatedUser.getUsername())
                 .set(qUser.email, updatedUser.getEmail())
-                .set(qUser.registrationDate, updatedUser.getRegistrationDate())
+                .set(qUser.password, updatedUser.getPassword())
                 .execute();
 
         return queryFactory.selectFrom(qUser)
@@ -41,7 +40,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public boolean deleteUserUsingQueryDSL(int  id) {
+    public boolean deleteUserUsingQueryDSL(int id) {
         QUser qUser = QUser.user;
 
         long deletedCount = queryFactory.delete(qUser)
@@ -52,21 +51,21 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public List<User> getUserByUsernameUsingQueryDSL(String username) {
+    public List<User> getUserByUsernameUsingQueryDSL(String email) {
         QUser qUser = QUser.user;
 
         return queryFactory.selectFrom(qUser)
-                .where(qUser.username.eq(username))
+                .where(qUser.email.eq(email))
                 .fetch();
     }
 
     @Override
-    public List<User> getUserByUsernameAndDateUsingQueryDSL(String username, Date registrationDate) {
+    public List<User> getUserByUsernameAndDateUsingQueryDSL(String email, entryDate entryDate) {
         QUser qUser = QUser.user;
 
         return queryFactory.selectFrom(qUser)
-                .where(qUser.username.eq(username)
-                        .and(qUser.registrationDate.eq(registrationDate)))
+                .where(qUser.email.eq(email)
+                        .and(qUser.entryDate.eq(entryDate)))
                 .fetch();
     }
 }
